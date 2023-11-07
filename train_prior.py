@@ -50,6 +50,12 @@ def train(training_set: List[str], validation_set: List[str], output_dir, n_epoc
 	# build network
 	if model_path:
 		model = load_pretrain_model(model_path, device=device)
+		# frozen the non-layer norm parameters
+		for name, param in model.named_parameters():
+			if 'ln' not in name:
+				param.requires_grad = False
+			else:
+				param.requires_grad = True
 	else:
 		mconf = GPTConfig(n_characters, block_size=block_size, n_layer=n_layer, n_head=n_head, n_embd=n_embd)
 		model = GPT(mconf)
